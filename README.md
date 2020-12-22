@@ -20,7 +20,22 @@ their Secret Santa is!
 Important!  This package uses the Gmail API which is accessed using the `gmailr` package. You must go through the setup, which is well documented in the `gmailr` github repo, available [here](https://github.com/r-lib/gmailr).
 
 
-## How to use this package
+## Quick start
+
+The workflow of this package looks like this:
+
+```
+library(secretsanta)
+
+config_path <- "path/to/config.json"
+authenticate(config_path)
+run_secret_santa(config_path)
+```
+
+Read on to learn how to set up your credentials and the config.
+
+
+## Setup details
 To run a Secret Santa with this package, you will:
 
 1. create a config file containing details about your setup;
@@ -28,7 +43,7 @@ To run a Secret Santa with this package, you will:
 3. kick off the e-mails.
 
 
-### Creating a config file
+### Step 1: Creating a config file
 This package requires a config file in JSON format to store details about
 your participants, files, and e-mails.  Here is a template:
 
@@ -92,7 +107,7 @@ of the JSON.  Participant names are substituted into these positions using
 regular expression matching.
 
 
-### Authenticate
+### Step 2: Authenticate
 For convenience, the package wraps the Gmail API authentication steps.
 After following the `gmailr` setup, simply do the following:
 
@@ -101,7 +116,7 @@ authenticate("path/to/config.json")
 ```
 
 
-### Send e-mails
+### Step 3: Send e-mails
 
 #### Optional: send test e-mail
 You may wish to test your setup prior to sending Secret Santa e-mails to all participants:
