@@ -4,7 +4,7 @@
 #'              secret santa assignments!  This function executes the entire
 #'              process from making assignments to sending e-mails to
 #'              participants informing them of their match.  It also writes
-#'              a log file of givers and recipients.
+#'              a log file of givers and recipients as a CSV.
 #' 
 #' @param config_path file path to the \code{secretsanta} config JSON.
 #'
