@@ -1,0 +1,20 @@
+Package: secretsanta
+Title: Generate a Secret Santa list and e-mail the participants!
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Adam",
+           family = "Austin",
+           role = c("aut", "cre"),
+           email = "ataustin@gmail.com")
+Description: secretsanta automates the process of assigning gift givers to
+             gift recipients.  The process can be blind to all participants,
+             including the organizer who runs the code.  A log file
+             will be written to record assignments.
+License: `use_mit_license()`
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Imports: 
+    jsonlite,
+    gmailr
