@@ -16,10 +16,6 @@ their Secret Santa is!
 `devtools::install_github("ataustin/secretsanta")`
 
 
-## Getting set up
-Important!  This package uses the Gmail API which is accessed using the `gmailr` package. You must go through the setup, which is well documented in the `gmailr` github repo, available [here](https://github.com/r-lib/gmailr).
-
-
 ## Quick start
 
 The workflow of this package looks like this:
@@ -32,10 +28,15 @@ authenticate(config_path)
 run_secret_santa(config_path)
 ```
 
-Read on to learn how to set up your credentials and the config.
+Before you begin, please read on to learn how to set up your credentials
+and the config.
 
 
-## Setup details
+## Getting set up
+Important!  This package uses the Gmail API which is accessed using the `gmailr` package. You must go through the setup, which is well documented in the `gmailr` github repo, available [here](https://github.com/r-lib/gmailr).
+
+
+## Workflow details
 To run a Secret Santa with this package, you will:
 
 1. create a config file containing details about your setup;
