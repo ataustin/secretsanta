@@ -33,7 +33,10 @@ and the config.
 
 
 ## Getting set up
-Important!  This package uses the Gmail API which is accessed using the `gmailr` package. You must go through the setup, which is well documented in the `gmailr` github repo, available [here](https://github.com/r-lib/gmailr).
+Important!  This package uses the Gmail API which is accessed using the `gmailr` package, documented [here](https://github.com/r-lib/gmailr).
+Unfortunately, using the Gmail API has become more difficult.  You must set up a project on Google Cloud Platform (console.cloud.google.com).
+Within this project, from the API menu, you must create an OAuth Client ID and download the client JSON.  This will be your credential file
+for use in the `secretsanta` package.
 
 
 ## Workflow details
@@ -92,14 +95,14 @@ and recipients in case it is needed.
 #### `email_settings`
 
 ##### `author`
-This is the person from whom the Secret Santa assignment e-mails will appear
-to come.  This is usually the organizer, as participants may need to reply to
+This is the person from whom the Secret Santa e-mails will appear
+to be sent.  This is usually the organizer, as participants may need to reply to
 the e-mail with questions.
 
 ##### `message`
 `subject` will be the e-mail subject line.
 
-`body` will be the body of the message.  This is best kept short and simple.
+`body` will be the body of the message.  This is best kept short and sweet.
 The `GIVER` and `RECIPIENT` fields will be swapped out by participant names
 automatically when the package does its work.  You can change the message
 and the field names, but be sure that the giver field keyword and the
@@ -110,11 +113,13 @@ regular expression matching.
 
 ### Step 2: Authenticate
 For convenience, the package wraps the Gmail API authentication steps.
-After following the `gmailr` setup, simply do the following:
+After following the `gmailr` setup, simply call:
 
 ```
 authenticate("path/to/config.json")
 ```
+
+and follow any on-screen prompts from Google.
 
 
 ### Step 3: Send e-mails
@@ -126,10 +131,14 @@ You may wish to test your setup prior to sending Secret Santa e-mails to all par
 test_secret_santa("path/to/config.json", mail_to = "your_address@domain.com")
 ```
 
-This function performs all giver/recipient assignments and then sends one
+This function performs random giver/recipient assignments and then sends one
 test message, as it would appear to someone in your pool, to the e-mail
 address you specify.  This allows you to ensure the e-mail looks the way
 you intend.
+
+Testing does not spoil any surprises, because giver/recipient pairs are
+re-randomized when you perform the next, final step.
+
 
 #### Run the Secret Santa process
 When you are ready to randomize the giver/recipient pairs and send e-mails to
@@ -139,7 +148,7 @@ all participants, simply do the following:
 run_secret_santa("path/to/config.json")
 ```
 
-This executes the entire process and writes a log file of assignments.
+This executes the randomization and e-mail process and writes a log file of assignments.
 Happy giving!
 
 
