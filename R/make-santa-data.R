@@ -11,15 +11,63 @@
 #'
 #' @export
 make_santa_data <- function(config) {
-  givers    <- sample(config$participants)
-  recipients <- c(tail(givers, length(givers) - 1), givers[1])
+  santa_data <- build_pairs(config)
 
-  santa_data <- data.frame(giver = names(givers),
-                           recipient = names(recipients),
-                           giver_email = unname(unlist(givers)))
-
+  if(!is.null(config$participants$do_not_pair)) {
+    validate_no_pair_names(config)
+    while(violates_pair_restriction(config, santa_data)) {
+      santa_data <- build_pairs(config)
+    }
+  }
+  
   santa_data$body <- build_email_message(config, santa_data)
   santa_data
+}
+
+
+build_pairs <- function(config) {
+  givers     <- sample(config$participants$contact)
+  recipients <- c(tail(givers, length(givers) - 1), givers[1])
+  
+  pair_data <- data.frame(giver = names(givers),
+                          recipient = names(recipients),
+                          giver_email = unname(unlist(givers)))
+  
+  pair_data
+}
+
+
+validate_no_pair_names <- function(config) {
+  no_pair_list  <- config$participants$do_not_pair
+  no_pair_names <- c(names(no_pair_list), unname(unlist(no_pair_list)))
+  participants  <- names(config$participants$contact)
+  
+  invalid_names <- setdiff(no_pair_names, participants)
+  if(length(invalid_names)) {
+    err <- paste0("Found names in 'do_not_pair' that do not match names ",
+                  "in 'contact':\n",
+                  paste(invalid_names, collapse = ", "))
+    stop(err, call. = FALSE)
+  }
+  
+  duplicated_names <- participants[duplicated(participants)]
+  if(length(duplicated_names)) {
+    err <- paste0("To use 'do_not_pair' please ensure participant names ",
+                  " are unique. The following names are duplicated:\n",
+                  paste(unique(duplicated_names), collapse = ", "))
+    stop(err, call. = FALSE)
+  }
+}
+
+
+violates_pair_restriction <- function(config, santa_data) {
+  no_pair   <- setNames(stack(config$participants$do_not_pair),
+                        c("giver", "do_not_pair"))
+  no_pair[] <- lapply(no_pair, as.character)
+  no_pair   <- rbind(no_pair, setNames(no_pair, c("do_not_pair", "giver")))
+  pair_test <- merge(santa_data, no_pair, by = "giver")
+  violation <- any(pair_test$recipient == pair_test$do_not_pair)
+  violation
 }
 
 
