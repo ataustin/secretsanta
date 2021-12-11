@@ -54,10 +54,15 @@ your participants, files, and e-mails.  Here is a template:
 ```
 {
   "participants": {
-    "Dwight Schrute": "numberonesalesman@dundermifflin.com",
-    "Jim Halpert": "jim@dundermifflin.com",
-    "Pam Beesly": "pam@dundermifflin.com",
-    "Angela Martin": "angela@dundermifflin.com"
+    "contact": {
+      "Dwight": "numberonesalesman@dundermifflin.com",
+      "Jim": "jim@dundermifflin.com",
+      "Pam": "pam@dundermifflin.com",
+      "Angela": "angela@dundermifflin.com"
+    },
+    "do_not_pair": {
+      "Dwight": "Jim"
+    }
   },
   "files": {
     "gmailr_credentials": "/path/to/gmail-api/credentials.json",
@@ -81,16 +86,27 @@ your participants, files, and e-mails.  Here is a template:
 ```
 
 #### `participants`
+
+##### `contact`
 These are key-value pairs, with participant names as the keys and their
 e-mail addresses as the values.  These are used for making assignments
 and sending e-mails.  Names will be used in the `GIVER` and `RECIPIENT` fields
 of the e-mails.
+
+##### `do_not_pair`
+This section is optional. If there are pairs of people who should not be matched
+(_e.g._ spouses or pranksters) list them here as key-value pairs. This is a *two-way*
+exclusion, so a single key-value pair will mean neither party will be matched to the other.
+The names in `do_not_pair` must match keys in the `contact` section and all keys in the
+`contact` section must be unique.
+
 
 #### `files`
 These are the file paths used by the package.  the `gmailr_credentials` file
 is what you saved in the process of getting `gmailr` set up.  The
 `assignment_log` is the path where the package will write the CSV log of givers
 and recipients in case it is needed.
+
 
 #### `email_settings`
 
