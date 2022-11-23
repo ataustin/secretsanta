@@ -75,10 +75,10 @@ build_email_message <- function(config, santa_data) {
   message <- rep(config$email_settings$message$body, nrow(santa_data))
 
   for(i in seq_along(message)) {
-    message[i] <- gsub(config$email_settings$message$replacements$giver,
+    message[i] <- gsub("GIVER",
                        santa_data$giver[i],
                        message[i])
-    message[i] <- gsub(config$email_settings$message$replacements$recipient,
+    message[i] <- gsub("RECIPIENT",
                        santa_data$recipient[i],
                        message[i])
   }

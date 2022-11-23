@@ -5,63 +5,79 @@ he's making a list, sampling it twice
 ## Ho ho ho!
 
 This package will help you set up your annual Secret Santa event!
-It creates giver/recipient pairs and sends e-mails to the givers to notify them
-of their recipient name.  It then writes a file to record the pairs for
-future reference.  The assignments aren't known unless someone opens the file,
-which means that the organizer can also participate without knowing who
-their Secret Santa is!
+
+You supply a list of participant names, and `secretsanta` will randomize them
+into giver/recipient pairs. The package then e-mails each person to tell them
+who their unsuspecting recipient is.
+
+The full list of giver/recipient assignments is kept secret, even from the person who uses
+this package. That means the event organizer can also participate in the gift-giving
+without spoiling any surprises. However, the package also logs the assignments
+in a CSV for future reference, in case it is needed (but no peeking!).
 
 
 ## Install
 `devtools::install_github("ataustin/secretsanta")`
 
 
-## Quick start
+## Overview
 
 The workflow of this package looks like this:
 
 ```
 library(secretsanta)
 
-config_path <- "path/to/config.json"
-authenticate(config_path)
-run_secret_santa(config_path)
+santa_config <- "path/to/config.json"   # specifies information for your event
+authenticate(santa_config)              # allows R to communicate with Gmail via API
+run_secret_santa(santa_config)          # randomizes participants and sends e-mails
 ```
 
-Before you begin, please read on to learn how to set up your credentials
-and the config.
+To use this package, first set up your Gmail credentials, then create a config. Read on
+for details!
 
 
-## Getting set up
-Important!  This package uses the Gmail API which is accessed using the `gmailr` package, documented [here](https://github.com/r-lib/gmailr).
-Unfortunately, using the Gmail API has become more difficult.  You must set up a project on Google Cloud Platform (console.cloud.google.com).
-Within this project, from the API menu, you must create an OAuth Client ID and download the client JSON.  This will be your credential file
-for use in the `secretsanta` package.
+## Authenticate with Gmail
+This package uses the Gmail API which is accessed using the `gmailr` package,
+documented [here](https://github.com/r-lib/gmailr).
+
+Setting up your authentication will be the hardest part of using this package. Please
+follow the [setup section](https://github.com/r-lib/gmailr#setup) of the `gmailr` package
+repository to learn more.
+
+Your goal during setup is the following:
+
+* create a project on Google Cloud Platform
+* generate OAuth Client ID credentials for desktop
+* download the OAuth client JSON
+
+This client JSON file will become the credential file used in the `secretsanta` config.
+
+#### A note on RStudio Server
+As of the 2022 season, I have been unable to authenticate using RStudio Server
+running in WSL2. This is probably due to Google's
+[deprecation of out-of-band workflows](https://developers.google.com/identity/protocols/oauth2/resources/oob-migration).
+While I haven't had time to debug this, I was able to authenticate from RStudio
+running on the desktop using an OAuth client ID for desktop app.
 
 
-## Workflow details
-To run a Secret Santa with this package, you will:
+## Write a `secretsanta` config file
 
-1. create a config file containing details about your setup;
-2. authenticate with the Gmail API; and
-3. kick off the e-mails.
-
-
-### Step 1: Creating a config file
 This package requires a config file in JSON format to store details about
-your participants, files, and e-mails.  Here is a template:
+your participants, file locations, and e-mail details.  Here is a template:
 
 ```
 {
   "participants": {
     "contact": {
-      "Dwight": "numberonesalesman@dundermifflin.com",
       "Jim": "jim@dundermifflin.com",
       "Pam": "pam@dundermifflin.com",
-      "Angela": "angela@dundermifflin.com"
+      "Angela": "angela@dundermifflin.com",
+      "Dwight": "assistantregionalmanager@dundermifflin.com",
+      "Michael": "number1boss@dundermifflin.com"
     },
     "do_not_pair": {
-      "Dwight": "Jim"
+      "Dwight": "Jim",
+      "Jim": "Pam"
     }
   },
   "files": {
@@ -76,103 +92,77 @@ your participants, files, and e-mails.  Here is a template:
     "message": {
       "subject": "Dunder Mifflin Secret Santa",
       "body": "Dear GIVER,\nHo ho ho!  Your Secret Santa recipient is RECIPIENT.\nYours,\nSanta"
-      "replacements": {
-        "giver": "GIVER",
-        "recipient": "RECIPIENT"
-      }
     }
   }
 }
 ```
 
-#### `participants`
+Here are some details about the fields:
 
-##### `contact`
-These are key-value pairs, with participant names as the keys and their
-e-mail addresses as the values.  These are used for making assignments
-and sending e-mails.  Names will be used in the `GIVER` and `RECIPIENT` fields
-of the e-mails.
-
-##### `do_not_pair`
-This section is optional. If there are pairs of people who should not be matched
-(_e.g._ spouses or pranksters) list them here as key-value pairs. This is a *two-way*
-exclusion, so a single key-value pair will mean neither party will be matched to the other.
-The names in `do_not_pair` must match keys in the `contact` section and all keys in the
-`contact` section must be unique.
-
-
-#### `files`
-These are the file paths used by the package.  the `gmailr_credentials` file
-is what you saved in the process of getting `gmailr` set up.  The
-`assignment_log` is the path where the package will write the CSV log of givers
-and recipients in case it is needed.
-
-
-#### `email_settings`
-
-##### `author`
-This is the person from whom the Secret Santa e-mails will appear
-to be sent.  This is usually the organizer, as participants may need to reply to
-the e-mail with questions.
-
-##### `message`
-`subject` will be the e-mail subject line.
-
-`body` will be the body of the message.  This is best kept short and sweet.
-The `GIVER` and `RECIPIENT` fields will be swapped out by participant names
-automatically when the package does its work.  You can change the message
-and the field names, but be sure that the giver field keyword and the
-recipient field keyword match exactly what is in the `replacements` section
-of the JSON.  Participant names are substituted into these positions using
-regular expression matching.
+* **participants**
+  * **contact**: key-value pairs of participant names and e-mails addresses. Keys must be
+                 unique, so if you have two Bobs, include last names in the key, e.g. "Bob Jones" and "Bob Smith"
+  * **do_not_pair**: _optional section_; if you wish to prevent two people from being matched
+                     (for example spouses or pranksters), list their names here as key-value pairs.
+                     The names must match a key in the **contact** section. This is a two-way
+                     exclusion, so a single key-value pair will prevent both parties from being matched to the other.
+* **files**
+  * **gmailr_credentials**: file path pointing to the JSON credentials file for the Gmail API
+  * **assignment_log**: file path where you want to write the CSV log file of givers and recipients
+* **email_settings**
+  * **author**
+    * **name**: the Secret Santa e-mail will appear to come from this person
+    * **email_address**: the Secret Santa e-mail will appear to come from this address
+  * **message**
+    * **subject**: the subject line for the Secret Santa e-mail
+    * **body**: the body of the Secret Santa e-mail, best kept short and sweet. _Important_: you must include the terms
+                `GIVER` and `RECIPIENT` (in capital letters) in this field. These words will be
+                replaced with actual giver & recipient names before the e-mail is sent.
 
 
-### Step 2: Authenticate
-For convenience, the package wraps the Gmail API authentication steps.
-After following the `gmailr` setup, simply call:
+## Test before going live
 
-```
-authenticate("path/to/config.json")
-```
-
-and follow any on-screen prompts from Google.
-
-
-### Step 3: Send e-mails
-
-#### Optional: send test e-mail
-You may wish to test your setup prior to sending Secret Santa e-mails to all participants:
+After authentication, you may wish to test your config prior to sending Secret Santa e-mails to all participants:
 
 ```
 test_secret_santa("path/to/config.json", mail_to = "your_address@domain.com")
 ```
 
 This function performs random giver/recipient assignments and then sends one
-test message, as it would appear to someone in your pool, to the e-mail
-address you specify.  This allows you to ensure the e-mail looks the way
+test message, as it would appear to someone in your participant pool, to the e-mail
+address you specify.  This allows you to ensure that the e-mail looks the way
 you intend.
 
 Testing does not spoil any surprises, because giver/recipient pairs are
-re-randomized when you perform the next, final step.
+always re-randomized any time e-mails are sent.
+
+Please note testing does NOT save a CSV log file.
 
 
-#### Run the Secret Santa process
+## Final notes
+
+#### Going live
+
 When you are ready to randomize the giver/recipient pairs and send e-mails to
-all participants, simply do the following:
+all participants, authenticate and then run the following:
 
 ```
 run_secret_santa("path/to/config.json")
 ```
 
-This executes the randomization and e-mail process and writes a log file of assignments.
-Happy giving!
 
-
-## A note on randomization
+#### Randomization
 
 The package makes giver/recipient pairs by scrambling the names of participants
-using `sample` and assigning each person to the one after them in the vector
-(the last person in the vector is assigned the first person).  This creates
-a single closed loop of givers and recipients so that, during gift opening,
+using `sample()` and assigning each person to the one after them in the resulting vector
+(with recycling).  This creates a single closed loop of givers and recipients so that, during gift opening,
 the flow can continuously move from recipient to giver until all participants
 have opened their gifts.
+
+#### Troubleshooting authentication
+
+Authentication with the Gmail API can be a headache.  If it's not working, try the following:
+
+* install the dev version of `gargle` with `remotes::install_github("r-lib/gargle")` to get the latest patches
+* use R for desktop (rather than, say, RStudio Server even if running locally)
+* ensure your OAuth client's credential type is "desktop"
