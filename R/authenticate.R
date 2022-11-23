@@ -10,5 +10,5 @@
 authenticate <- function(config_path) {
   config <- jsonlite::fromJSON(config_path)
   gmailr::gm_auth_configure(path = config$files$gmailr_credentials)
-  gmailr::gm_auth()
+  gmailr::gm_auth(use_oob = FALSE)
 }
