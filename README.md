@@ -83,10 +83,10 @@ your participants, file locations, and the e-mail to send.  Here is a template:
     "gmailr_credentials": "/path/to/gmail-api/credentials.json",
     "assignment_log": "/path/to/write/assignments.csv"
   },
-  "e-mail_settings": {
+  "email_settings": {
     "author": {
       "name": "Jim Halpert",
-      "e-mail_address": "jim@dundermifflin.com"
+      "email_address": "jim@dundermifflin.com"
     },
     "message": {
       "subject": "Dunder Mifflin Secret Santa",
@@ -108,10 +108,10 @@ Here are some details about the fields:
 * **files**
   * **gmailr_credentials**: file path pointing to the JSON credentials file for the Gmail API
   * **assignment_log**: file path where you want to write the CSV log file of givers and recipients
-* **e-mail_settings**
+* **email_settings**
   * **author**
     * **name**: the Secret Santa e-mail will appear to come from this person
-    * **e-mail_address**: the Secret Santa e-mail will appear to come from this address
+    * **email_address**: the Secret Santa e-mail will appear to come from this address
   * **message**
     * **subject**: the subject line for the Secret Santa e-mail
     * **body**: the body of the Secret Santa e-mail, best kept short and sweet. _Important_: you must include the terms
