@@ -1,5 +1,7 @@
 # secretsanta
-he's making a list, sampling it twice
+
+He's making a list, sampling it twice :santa:
+
 
 
 ## Ho ho ho!
@@ -16,8 +18,11 @@ without spoiling any surprises. However, the package also logs the assignments
 in a CSV for future reference, in case it is needed (but no peeking!).
 
 
+
 ## Install
-`devtools::install_github("ataustin/secretsanta")`
+
+`remotes::install_github("ataustin/secretsanta")`
+
 
 
 ## Overview
@@ -36,13 +41,13 @@ To use this package, first set up your Gmail credentials, then create a config. 
 for details!
 
 
-## Authenticate with Gmail
-This package uses the Gmail API which is accessed using the `gmailr` package,
-documented [here](https://github.com/r-lib/gmailr).
 
+## Authentication with Gmail
+
+This package uses the Gmail API which is accessed using the `gmailr` package
+documented [here](https://github.com/r-lib/gmailr#gmailr).
 Setting up your authentication will be the hardest part of using this package. Please
-follow the [setup section](https://github.com/r-lib/gmailr#setup) of the `gmailr` package
-repository to learn more.
+follow the "Setup and auth" section of the `gmailr` docs to learn more.
 
 Your goal during setup is the following:
 
@@ -52,18 +57,12 @@ Your goal during setup is the following:
 
 This client JSON file will become the credential file used in the `secretsanta` config.
 
-#### A note on RStudio Server
-As of the 2022 season, I have been unable to authenticate using RStudio Server
-running in WSL2. This is probably due to Google's
-[deprecation of out-of-band workflows](https://developers.google.com/identity/protocols/oauth2/resources/oob-migration).
-While I haven't had time to debug this, I was able to authenticate from RStudio
-running on the desktop using an OAuth client ID for desktop app.
 
 
 ## Write a `secretsanta` config file
 
 This package requires a config file in JSON format to store details about
-your participants, file locations, and e-mail details.  Here is a template:
+your participants, file locations, and the e-mail to send.  Here is a template:
 
 ```
 {
@@ -84,10 +83,10 @@ your participants, file locations, and e-mail details.  Here is a template:
     "gmailr_credentials": "/path/to/gmail-api/credentials.json",
     "assignment_log": "/path/to/write/assignments.csv"
   },
-  "email_settings": {
+  "e-mail_settings": {
     "author": {
       "name": "Jim Halpert",
-      "email_address": "jim@dundermifflin.com"
+      "e-mail_address": "jim@dundermifflin.com"
     },
     "message": {
       "subject": "Dunder Mifflin Secret Santa",
@@ -109,10 +108,10 @@ Here are some details about the fields:
 * **files**
   * **gmailr_credentials**: file path pointing to the JSON credentials file for the Gmail API
   * **assignment_log**: file path where you want to write the CSV log file of givers and recipients
-* **email_settings**
+* **e-mail_settings**
   * **author**
     * **name**: the Secret Santa e-mail will appear to come from this person
-    * **email_address**: the Secret Santa e-mail will appear to come from this address
+    * **e-mail_address**: the Secret Santa e-mail will appear to come from this address
   * **message**
     * **subject**: the subject line for the Secret Santa e-mail
     * **body**: the body of the Secret Santa e-mail, best kept short and sweet. _Important_: you must include the terms
@@ -120,9 +119,23 @@ Here are some details about the fields:
                 replaced with actual giver & recipient names before the e-mail is sent.
 
 
+
+## Authenticate
+
+Once you set up Gmail authentication and have written your config, you can authenticate:
+
+```
+authenticate("path/to/config.json")
+```
+
+This connects you to Gmail and allows you to send e-mails.
+
+
+
 ## Test before going live
 
-After authentication, you may wish to test your config prior to sending Secret Santa e-mails to all participants:
+After authentication, you may wish to test your config prior to sending
+Secret Santa e-mails to all participants:
 
 ```
 test_secret_santa("path/to/config.json", mail_to = "your_address@domain.com")
@@ -134,35 +147,60 @@ address you specify.  This allows you to ensure that the e-mail looks the way
 you intend.
 
 Testing does not spoil any surprises, because giver/recipient pairs are
-always re-randomized any time e-mails are sent.
+always re-randomized anytime e-mails are sent.
 
 Please note testing does NOT save a CSV log file.
 
 
-## Final notes
 
-#### Going live
+## Send the Christmas joy!
 
 When you are ready to randomize the giver/recipient pairs and send e-mails to
-all participants, authenticate and then run the following:
+all participants, run the following:
 
 ```
 run_secret_santa("path/to/config.json")
 ```
 
 
-#### Randomization
+
+## Final notes
+
+### How randomization works
 
 The package makes giver/recipient pairs by scrambling the names of participants
 using `sample()` and assigning each person to the one after them in the resulting vector
-(with recycling).  This creates a single closed loop of givers and recipients so that, during gift opening,
-the flow can continuously move from recipient to giver until all participants
+(with recycling).  This creates a single closed loop of givers and recipients so that,
+during gift opening, the flow can continuously move from recipient to giver until all participants
 have opened their gifts.
 
-#### Troubleshooting authentication
+
+### Authentication is designed to frighten you
+
+The first time you run `authenticate()` Google will provide you with an alarming
+number of scary-looking screens and e-mails.  You will have to proceed past an "unsafe"
+screen and give `secretsanta` read & write access to your Gmail account.
+
+Rest assured that only your local copy of `secretsanta` gets these privileges, not
+me or anyone else.  It's the same process as connecting any app to your e-mail client.
+If you aren't sure, feel free to browse the source code of the repo to see what the
+package is doing.  Interaction with Gmail occurs through the `gmailr` package only
+and the package is only sending new e-mails, not looking for or modifying existing ones.
+
+
+### Troubleshooting authentication
 
 Authentication with the Gmail API can be a headache.  If it's not working, try the following:
 
 * install the dev version of `gargle` with `remotes::install_github("r-lib/gargle")` to get the latest patches
 * use R for desktop (rather than, say, RStudio Server even if running locally)
 * ensure your OAuth client's credential type is "desktop"
+
+
+### Authentication & RStudio Server
+
+As of the 2022 season, I wasn't been unable to authenticate using RStudio Server
+running in WSL2. This is probably due to Google's
+[deprecation of out-of-band workflows](https://developers.google.com/identity/protocols/oauth2/resources/oob-migration).
+While I haven't had time to debug this, I was able to authenticate from RStudio
+running on the desktop using an OAuth client ID for desktop app.
