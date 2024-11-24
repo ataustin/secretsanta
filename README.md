@@ -128,7 +128,9 @@ Once you set up Gmail authentication and have written your config, you can authe
 authenticate("path/to/config.json")
 ```
 
-This connects you to Gmail and allows you to send e-mails.
+This connects you to Gmail and allows you to send e-mails.  Even if you used this package in the past,
+you may have to jump through authorization hoops using your browser to give permissions to
+`secretsanta` again.  See the "Final notes" section below for more information.
 
 
 
@@ -182,7 +184,7 @@ number of scary-looking screens and e-mails.  You will have to proceed past an "
 screen and give `secretsanta` read & write access to your Gmail account.
 
 Rest assured that only your local copy of `secretsanta` gets these privileges, not
-me or anyone else.  It's the same process as connecting any app to your e-mail client.
+the package author or anyone else.  It's the same process as connecting any app to your e-mail client.
 If you aren't sure, feel free to browse the source code of the repo to see what the
 package is doing.  Interaction with Gmail occurs through the `gmailr` package only
 and the package is only sending new e-mails, not looking for or modifying existing ones.
@@ -199,7 +201,7 @@ Authentication with the Gmail API can be a headache.  If it's not working, try t
 
 ### Authentication & RStudio Server
 
-As of the 2022 season, I wasn't been unable to authenticate using RStudio Server
+As of the 2022 season, I wasn't able to authenticate using RStudio Server
 running in WSL2. This is probably due to Google's
 [deprecation of out-of-band workflows](https://developers.google.com/identity/protocols/oauth2/resources/oob-migration).
 While I haven't had time to debug this, I was able to authenticate from RStudio
